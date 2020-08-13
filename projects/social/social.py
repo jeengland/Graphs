@@ -1,3 +1,22 @@
+import random
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, value):
+        self.queue.append(value)
+
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+
+    def size(self):
+        return len(self.queue)
+
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -28,6 +47,9 @@ class SocialGraph:
         self.users[self.last_id] = User(name)
         self.friendships[self.last_id] = set()
 
+    def get_neighbors(self, friend_id):
+        return self.friendships[friend_id]
+
     def populate_graph(self, num_users, avg_friendships):
         """
         Takes a number of users and an average number of friendships
@@ -42,11 +64,27 @@ class SocialGraph:
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
-
         # Add users
-
+        for i in range(0, num_users):
+            self.add_user(f'user {i + 1}')
         # Create friendships
+        possible_friendships = []
+
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+        
+        random.shuffle(possible_friendships)
+
+        n = num_users * avg_friendships // 2
+        for i in range(n):
+            friendship = possible_friendships[i]
+            user_id, friend_id = friendship
+            self.add_friendship(user_id, friend_id)
+
+
+
+
 
     def get_all_social_paths(self, user_id):
         """
@@ -58,7 +96,17 @@ class SocialGraph:
         The key is the friend's ID and the value is the path.
         """
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        q = Queue()
+        q.enqueue([user_id])
+
+        while q.size() > 0:
+            current = q.dequeue()
+            vertex = current[-1]
+            if vertex not in visited:
+                visited[vertex] = current
+                for neighbor in self.get_neighbors(vertex):
+                    q.enqueue(current+[neighbor])
+
         return visited
 
 
