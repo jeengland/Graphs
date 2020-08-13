@@ -1,5 +1,22 @@
 import random
 
+class Queue():
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, value):
+        self.queue.append(value)
+
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+
+    def size(self):
+        return len(self.queue)
+
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -29,6 +46,9 @@ class SocialGraph:
         self.last_id += 1  # automatically increment the ID to assign the new user
         self.users[self.last_id] = User(name)
         self.friendships[self.last_id] = set()
+
+    def get_neighbors(self, friend_id):
+        return self.friendships[friend_id]
 
     def populate_graph(self, num_users, avg_friendships):
         """
@@ -76,7 +96,17 @@ class SocialGraph:
         The key is the friend's ID and the value is the path.
         """
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        q = Queue()
+        q.enqueue([user_id])
+
+        while q.size() > 0:
+            current = q.dequeue()
+            vertex = current[-1]
+            if vertex not in visited:
+                visited[vertex] = current
+                for neighbor in self.get_neighbors(vertex):
+                    q.enqueue(current+[neighbor])
+
         return visited
 
 
